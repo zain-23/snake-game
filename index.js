@@ -10,6 +10,7 @@ const gridSize = 20;
 let snake = [{ x: 10, y: 10 }];
 let food = generateFood();
 let highScore = 0;
+console.log("highScore", highScore);
 let direction = "right";
 let gameInterval;
 let gameSpeedDelay = 200;
@@ -87,7 +88,7 @@ function move() {
     clearInterval(gameInterval); // Clear past interval
     gameInterval = setInterval(() => {
       move();
-      // checkCollision();
+      checkCollision();
       draw();
     }, gameSpeedDelay);
   } else {
@@ -102,7 +103,7 @@ function startGame() {
   logo.style.display = "none";
   gameInterval = setInterval(() => {
     move();
-    // checkCollision();
+    checkCollision();
     draw();
   }, gameSpeedDelay);
 }
@@ -135,7 +136,6 @@ function handleKeyPress(event) {
 document.addEventListener("keydown", handleKeyPress);
 
 function increaseSpeed() {
-  //   console.log(gameSpeedDelay);
   if (gameSpeedDelay > 150) {
     gameSpeedDelay -= 5;
   } else if (gameSpeedDelay > 100) {
@@ -145,4 +145,50 @@ function increaseSpeed() {
   } else if (gameSpeedDelay > 25) {
     gameSpeedDelay -= 1;
   }
+}
+
+// check Collision
+function checkCollision() {
+  const head = snake[0];
+  if (head.x < 1 || head.x > gridSize || head.y < 1 || head.y > gridSize) {
+    resetGame();
+  }
+  for (let i = 1; i < snake.length; i++) {
+    if (head.x === snake[i].x && head.y === snake[i].y) {
+      resetGame();
+    }
+  }
+}
+
+function resetGame() {
+  updateHighScore();
+  snake = [{ x: 10, y: 10 }];
+  food = generateFood();
+  direction = "right";
+  gameSpeedDelay = 200;
+  updateScore();
+  stopGame();
+}
+
+function stopGame() {
+  gameStarted = false;
+  instructionText.style.display = "block";
+  instructionText.innerHTML = "Game Over";
+  logo.style.display = "block";
+  clearInterval(gameInterval);
+}
+
+function updateScore() {
+  const currentScore = snake.length - 1;
+  score.innerHTML = currentScore.toString().padStart(3, "0");
+}
+
+function updateHighScore() {
+  const currentScore = snake.length - 1;
+  console.log("currentScore", currentScore);
+  if (currentScore > highScore) {
+    highScore = currentScore;
+    highScoreText.textContent = highScore.toString().padStart(3, "0");
+  }
+  highScoreText.style.display = "block";
 }
